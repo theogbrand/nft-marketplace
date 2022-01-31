@@ -1,24 +1,52 @@
 const hre = require('hardhat')
 const fs = require('fs')
 
+// async function main() {
+//   const NFTMarket = await hre.ethers.getContractFactory('NFTMarket')
+//   const nftMarket = await NFTMarket.deploy()
+//   await nftMarket.deployed()
+//   console.log('nftMarket deployed to:', nftMarket.address)
+
+//   const NFT = await hre.ethers.getContractFactory('NFT')
+//   const nft = await NFT.deploy(nftMarket.address)
+//   await nft.deployed()
+//   console.log('nft deployed to:', nft.address)
+
+//   let config = `
+//   export const nftmarketaddress = "${nftMarket.address}"
+//   export const nftaddress = "${nft.address}"
+//   `
+
+//   let data = JSON.stringify(config)
+//   fs.writeFileSync('config.js', JSON.parse(data))
+// }
+
 async function main() {
+  const [deployer] = await hre.ethers.getSigners()
+
+  console.log('Deploying contracts with the account:', deployer.address)
+
+  let txHash, txReceipt
   const NFTMarket = await hre.ethers.getContractFactory('NFTMarket')
   const nftMarket = await NFTMarket.deploy()
   await nftMarket.deployed()
-  console.log('nftMarket deployed to:', nftMarket.address)
+
+  txHash = nftMarket.deployTransaction.hash
+  txReceipt = await ethers.provider.waitForTransaction(txHash)
+  let nftMarketAddress = txReceipt.contractAddress
+
+  console.log('nftMarket deployed to:', nftMarketAddress)
 
   const NFT = await hre.ethers.getContractFactory('NFT')
-  const nft = await NFT.deploy(nftMarket.address)
+  const nft = await NFT.deploy(nftMarketAddress)
   await nft.deployed()
-  console.log('nft deployed to:', nft.address)
 
-  let config = `
-  export const nftmarketaddress = "${nftMarket.address}"
-  export const nftaddress = "${nft.address}"
-  `
+  txHash = nft.deployTransaction.hash
+  // console.log(`NFT hash: ${txHash}\nWaiting for transaction to be mined...`);
+  txReceipt = await ethers.provider.waitForTransaction(txHash)
+  let nftAddress = txReceipt.contractAddress
 
-  let data = JSON.stringify(config)
-  fs.writeFileSync('config.js', JSON.parse(data))
+  console.log('nft deployed to:', nftAddress)
 }
 
 main()
