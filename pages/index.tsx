@@ -34,7 +34,7 @@ export default function Home() {
     const items = await Promise.all(data.map(async (i: any) => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
       const meta = await axios.get(tokenUri) // ipfs token URI
-      
+
       let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
       let item = {
         price,
@@ -53,13 +53,16 @@ export default function Home() {
 
 
   async function buyNft(nft: any) {
+    // look for instance of ethereum object in window to access wallet
     const web3Modal = new Web3Modal()
     const connection = await web3Modal.connect()
+
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
 
     const price = ethers.utils.parseUnits(nft.price.toString(), 'ether')
+    // calling function createMarketSale from smart contract
     const transaction = await contract.createMarketSale(nftaddress, nft.itemId, {
       value: price
     })
@@ -74,6 +77,7 @@ export default function Home() {
   return (
     <div className="flex justify-center">
       <div className="px-4" style={{ maxWidth: '1600px' }}>
+        {/* grid container for responsive design */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
           {
             nfts.map((nft, i) => (
@@ -86,7 +90,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="p-4 bg-black">
-                  <p className="text-2xl mb-4 font-bold text-white">{nft.price} ETH</p>
+                  <p className="text-2xl mb-4 font-bold text-white">{nft.price} MATIC</p>
                   <button className="w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => buyNft(nft)}>Buy</button>
                 </div>
               </div>
