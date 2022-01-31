@@ -133,6 +133,7 @@ contract NFTMarket is ReentrancyGuard {
 
     for (uint i = 0; i < itemCount; i++) {
         // if NFT's owner is AddressZero, it is not sold
+        // start from index=1 by design not by convention when minting NFTs (see test for example)
         if (idToMarketItem[i + 1].owner == address(0)) {
             uint currentId = i + 1;
 
